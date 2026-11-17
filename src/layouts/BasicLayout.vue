@@ -8,11 +8,12 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="https://U100.icu" target="_blank">
-          编程导航知识星球 by 程序员鱼皮
+        <a href="https://github.com/Hob-F" target="_blank">
+          github.com/Hob-F
         </a>
       </a-layout-footer>
     </a-layout>
+    <AiAssistant />
   </div>
 </template>
 
@@ -43,8 +44,9 @@
 </style>
 <script>
 import GlobalHeader from "@/components/GlobalHeader";
+import AiAssistant from "@/components/AiAssistant.vue";
 
 export default {
-  components: { GlobalHeader },
+  components: { GlobalHeader, AiAssistant },
 };
 </script>
