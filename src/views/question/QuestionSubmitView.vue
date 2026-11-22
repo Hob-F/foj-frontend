@@ -34,7 +34,18 @@
       @page-change="onPageChange"
     >
       <template #judgeInfo="{ record }">
-        {{ JSON.stringify(record.judgeInfo) }}
+        <div class="judge-info-cell">
+          <div class="judge-info-stats" v-if="record.judgeInfo">
+            内存：{{ formatMemory(record.judgeInfo?.memory) }} · 耗时：{{
+              record.judgeInfo?.time ?? "-"
+            }}
+            ms
+          </div>
+          <pre v-if="record.judgeInfo?.message" class="judge-info-msg">{{
+            record.judgeInfo?.message
+          }}</pre>
+          <span v-else class="judge-info-empty">暂无信息</span>
+        </div>
       </template>
       <template #createTime="{ record }">
         {{ moment(record.createTime).format("YYYY-MM-DD") }}
@@ -55,7 +66,6 @@ import { useRouter } from "vue-router";
 import moment from "moment";
 
 const tableRef = ref();
-
 const dataList = ref([]);
 const total = ref(0);
 const searchParams = ref<QuestionSubmitQueryRequest>({
@@ -64,6 +74,14 @@ const searchParams = ref<QuestionSubmitQueryRequest>({
   pageSize: 10,
   current: 1,
 });
+
+/** 字节数转成 MB 展示 */
+const formatMemory = (memory?: number) => {
+  if (memory === undefined || memory === null) {
+    return "-";
+  }
+  return (memory / 1024 / 1024).toFixed(2) + " MB";
+};
 
 const loadData = async () => {
   const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost(
@@ -134,7 +152,6 @@ const onPageChange = (page: number) => {
 };
 
 const router = useRouter();
-
 /**
  * 跳转到做题页面
  * @param question
@@ -161,5 +178,35 @@ const doSubmit = () => {
 #questionSubmitView {
   max-width: 1280px;
   margin: 0 auto;
+}
+
+.judge-info-cell {
+  max-width: 360px; /* 控制列宽,避免长报错撑爆表格 */
+}
+
+.judge-info-stats {
+  color: #4e5969;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.judge-info-msg {
+  white-space: pre-wrap; /* 保留换行 */
+  word-break: break-all; /* 超长路径强制折行 */
+  max-height: 200px;
+  overflow-y: auto; /* 超高出滚动条 */
+  font-family: Consolas, Menlo, monospace;
+  font-size: 12px;
+  margin: 0;
+  padding: 8px;
+  background: #fff1f0;
+  border: 1px solid #ffa39e;
+  border-radius: 4px;
+  color: #cf1322;
+}
+
+.judge-info-empty {
+  color: #86909c;
+  font-size: 12px;
 }
 </style>

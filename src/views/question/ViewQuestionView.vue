@@ -81,10 +81,16 @@
               >
                 Accepted 🎉
               </a-tag>
-              <a-tag v-else color="red">
-                {{ submitResult?.judgeInfo?.message ?? "未通过" }}
-              </a-tag>
+              <a-tag v-else color="red">未通过</a-tag>
             </a-space>
+            <pre
+              v-if="
+                submitResult?.judgeInfo?.message &&
+                submitResult?.judgeInfo?.message !== 'Accepted'
+              "
+              class="judge-info-msg"
+              >{{ formatJudgeMessage(submitResult?.judgeInfo?.message) }}</pre
+            >
             <span>耗时：{{ submitResult?.judgeInfo?.time ?? "-" }} ms</span>
             <span
               >内存：{{
@@ -144,6 +150,17 @@ const form = ref<QuestionSubmitAddRequest>({
 // ===== 判题轮询相关 =====
 const submitting = ref(false);
 const submitResult = ref<QuestionSubmitVO>();
+
+/**
+ * 兼容后端可能返回的字面量 "\n" 文本，统一转成真实换行，
+ * 配合 <pre> 的 pre-wrap 展示多行编译报错
+ */
+const formatJudgeMessage = (msg?: string) => {
+  if (!msg) {
+    return "";
+  }
+  return msg.replace(/\\n/g, "\n");
+};
 
 /**
  * 判题是异步的（MQ -> judge-service -> 沙箱 -> 回写数据库），
@@ -221,7 +238,27 @@ const changeCode = (value: string) => {
   max-width: 1400px;
   margin: 0 auto;
 }
+
 #viewQuestionView .arco-space-horizontal .arco-space-item {
   margin-bottom: 0 !important;
+}
+
+/* 编译错误等多行信息展示块 */
+#viewQuestionView .judge-info-msg {
+  width: 100%;
+  white-space: pre-wrap; /* 保留换行 + 自动折行 */
+  word-break: break-all; /* 超长路径强制断行 */
+  max-height: 240px;
+  overflow-y: auto; /* 超长出滚动条 */
+  font-family: Consolas, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 8px 12px;
+  background: #fff1f0;
+  border: 1px solid #ffa39e;
+  border-radius: 4px;
+  color: #cf1322;
+  text-align: left;
 }
 </style>
